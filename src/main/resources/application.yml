@@ -5,18 +5,14 @@ spring:
   application:
     name: config-server
   profiles:
-    active: git # Uses Git repository for centralized configurations
+    active: git
   cloud:
     config:
       server:
         git:
-          uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
+          uri: file://${user.dir}/config-repo
           default-label: main
-          clone-on-start: true
-          timeout: 10
-          # For private repos, uncomment and set credentials:
-          # username: ${GIT_USERNAME}
-          # password: ${GIT_PASSWORD}
+          clone-on-start: false
           search-paths:
             - platform
             - services
@@ -24,7 +20,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}
+      defaultZone: http://localhost:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
