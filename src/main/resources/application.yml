@@ -12,3 +12,16 @@ spring:
 
 server:
   port: 9000
+
+---
+# Development Profile - additional dev-specific settings
+spring:
+  config:
+    activate:
+      on-profile: dev
+  cloud:
+    config:
+      server:
+        git:
+          clone-on-start: true
+          default-label: main
