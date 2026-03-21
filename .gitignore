@@ -34,3 +34,6 @@ Thumbs.db
 node_modules/
 dist/
 .env
+
+# Config Server - configs loaded from external Git repo
+src/main/resources/config/

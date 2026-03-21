@@ -5,12 +5,21 @@ spring:
   application:
     name: config-server
   profiles:
-    active: native # Reads config files from the classpath (no Git repo required)
+    active: git # Uses Git repository for centralized configurations
   cloud:
     config:
       server:
-        native:
-          search-locations: classpath:/config/
+        git:
+          uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
+          default-label: main
+          clone-on-start: true
+          timeout: 10
+          # For private repos, uncomment and set credentials:
+          # username: ${GIT_USERNAME}
+          # password: ${GIT_PASSWORD}
+          search-paths:
+            - platform
+            - services
 
 eureka:
   client:
