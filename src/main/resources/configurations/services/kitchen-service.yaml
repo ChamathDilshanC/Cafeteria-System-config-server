@@ -1,0 +1,68 @@
+# Kitchen Service Configuration
+
+spring:
+  application:
+    name: kitchen-service
+
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER:admin}:${MONGO_PASSWORD:adminpassword}@${MONGO_HOST:localhost}:27017/kitchen_service_db?authSource=admin
+      database: kitchen_service_db
+      auto-index-creation: ${MONGO_AUTO_INDEX:true}
+      repositories:
+        type: auto
+
+server:
+  port: ${KITCHEN_SERVICE_PORT:8084}
+
+# Kitchen-specific Configuration
+kitchen:
+  operations:
+    max-concurrent-orders: ${MAX_CONCURRENT_ORDERS:50}
+    prep-time-multiplier: ${PREP_TIME_MULTIPLIER:1.0}
+    auto-assign-orders: ${AUTO_ASSIGN_ORDERS:true}
+
+  # Order Status Update Configuration
+  status:
+    update-interval: ${STATUS_UPDATE_INTERVAL:30} # seconds
+    auto-complete-timeout: ${AUTO_COMPLETE_TIMEOUT:1800} # 30 minutes
+
+  # Queue Management
+  queue:
+    max-size: ${QUEUE_MAX_SIZE:100}
+    processing-timeout: ${PROCESSING_TIMEOUT:3600} # 1 hour
+
+# MongoDB Connection Pool Configuration
+spring.data.mongodb:
+  connection-per-host: ${MONGO_CONNECTIONS_PER_HOST:10}
+  min-connections-per-host: ${MONGO_MIN_CONNECTIONS:5}
+  max-wait-time: ${MONGO_MAX_WAIT_TIME:10000}
+  connect-timeout: ${MONGO_CONNECT_TIMEOUT:5000}
+  socket-timeout: ${MONGO_SOCKET_TIMEOUT:5000}
+
+# WebSocket Configuration (for real-time updates)
+websocket:
+  enabled: ${WEBSOCKET_ENABLED:true}
+  path: ${WEBSOCKET_PATH:/kitchen-updates}
+  allowed-origins: ${WEBSOCKET_ORIGINS:http://localhost:3000,http://localhost:8080}
+
+# Notification Configuration
+notification:
+  enabled: ${NOTIFICATION_ENABLED:true}
+  channels:
+    email: ${EMAIL_NOTIFICATIONS:false}
+    websocket: ${WEBSOCKET_NOTIFICATIONS:true}
+    sms: ${SMS_NOTIFICATIONS:false}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,mongodb
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    mongo:
+      enabled: true

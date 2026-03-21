@@ -1,0 +1,101 @@
+# Order Service Configuration
+
+spring:
+  application:
+    name: order-service
+
+  # Database Configuration
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/order_service_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:rootpassword}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:15}
+      minimum-idle: ${DB_MIN_IDLE:5}
+      idle-timeout: 300000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:false}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+  # Circuit Breaker Configuration
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        alphanumeric-ids:
+          enabled: true
+    circuitbreaker:
+      resilience4j:
+        enabled: true
+
+server:
+  port: ${ORDER_SERVICE_PORT:8083}
+
+# Feign Client Configuration
+feign:
+  client:
+    config:
+      user-service:
+        connect-timeout: ${FEIGN_CONNECT_TIMEOUT:5000}
+        read-timeout: ${FEIGN_READ_TIMEOUT:5000}
+        retry-attempts: ${FEIGN_RETRY_ATTEMPTS:3}
+      menu-service:
+        connect-timeout: ${FEIGN_CONNECT_TIMEOUT:5000}
+        read-timeout: ${FEIGN_READ_TIMEOUT:5000}
+        retry-attempts: ${FEIGN_RETRY_ATTEMPTS:3}
+      kitchen-service:
+        connect-timeout: ${FEIGN_CONNECT_TIMEOUT:5000}
+        read-timeout: ${FEIGN_READ_TIMEOUT:5000}
+        retry-attempts: ${FEIGN_RETRY_ATTEMPTS:3}
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: ${CB_SLIDING_WINDOW_SIZE:10}
+        permittedNumberOfCallsInHalfOpenState: ${CB_PERMITTED_CALLS:3}
+        slidingWindowType: COUNT_BASED
+        minimumNumberOfCalls: ${CB_MIN_CALLS:5}
+        waitDurationInOpenState: ${CB_WAIT_DURATION:10s}
+        failureRateThreshold: ${CB_FAILURE_RATE:50}
+        eventConsumerBufferSize: 10
+
+  # Retry Configuration
+  retry:
+    configs:
+      default:
+        maxAttempts: ${RETRY_MAX_ATTEMPTS:3}
+        waitDuration: ${RETRY_WAIT_DURATION:1s}
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+# Order Configuration
+order:
+  status:
+    auto-confirm-timeout: ${AUTO_CONFIRM_TIMEOUT:300} # 5 minutes
+  payment:
+    timeout: ${PAYMENT_TIMEOUT:600} # 10 minutes
+  notification:
+    enabled: ${NOTIFICATION_ENABLED:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers,retries
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    circuitbreakers:
+      enabled: true

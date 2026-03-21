@@ -1,21 +1,16 @@
 server:
-  port: 8888
+  port: 9000
 
 spring:
   application:
     name: config-server
   profiles:
-    active: git
+    active: native
   cloud:
     config:
       server:
-        git:
-          uri: file://${user.dir}/config-repo
-          default-label: main
-          clone-on-start: false
-          search-paths:
-            - platform
-            - services
+        native:
+          search-locations: classpath:/configurations
 
 eureka:
   client:
