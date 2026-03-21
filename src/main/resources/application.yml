@@ -2,15 +2,13 @@ spring:
   application:
     name: config-server
   profiles:
-    active: native
+    active: git
   cloud:
     config:
       server:
-        native:
-          search-locations:
-            - classpath:/configurations
-            - classpath:/configurations/platform
-            - classpath:/configurations/services
+        git:
+          uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
+          clone-on-start: true
 
 server:
   port: 9000
