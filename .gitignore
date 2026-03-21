@@ -37,3 +37,4 @@ dist/
 
 # Config Server - configs loaded from external Git repo
 src/main/resources/config/
+src/main/resources/configurations/
