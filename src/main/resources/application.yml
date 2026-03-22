@@ -9,19 +9,7 @@ spring:
         git:
           uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
           clone-on-start: true
+          search-paths: 'platform,services'
 
 server:
   port: 9000
-
----
-# Development Profile - additional dev-specific settings
-spring:
-  config:
-    activate:
-      on-profile: dev
-  cloud:
-    config:
-      server:
-        git:
-          clone-on-start: true
-          default-label: main
