@@ -257,7 +257,7 @@ curl -X POST http://localhost:8081/actuator/refresh
    ```yaml
    spring:
      datasource:
-       url: jdbc:mysql://localhost:3306/notifications
+       url: jdbc:postgresql://localhost:5432/notifications
    ```
 
 3. Restart Config Server or ensure file watching is enabled
