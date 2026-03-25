@@ -8,6 +8,7 @@ spring:
           uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
           clone-on-start: true
           search-paths: platform,services
+          default-label: main
         native:
           search-locations:
             - classpath:/configurations
