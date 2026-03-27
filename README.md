@@ -31,25 +31,30 @@ The Config Server is a centralized configuration management service built with S
 
 ## 📡 Service Configuration
 
-| Property                | Value                |
-| ----------------------- | -------------------- |
-| **Service Name**        | `config-server`      |
-| **Port**                | `8888`               |
-| **Eureka Registration** | Yes                  |
-| **Profile**             | `native`             |
-| **Config Location**     | `classpath:/config/` |
+| Property                | Value                          |
+| ----------------------- | ------------------------------ |
+| **Service Name**        | `config-server`                |
+| **Port**                | `9000`                         |
+| **Eureka Registration** | Yes                            |
+| **Profile**             | `git` (primary)                |
+| **Config Repo**         | github.com/ChamathDilshanC/... |
 
 ## 📁 Configuration Structure
 
 ```
 config-server/
 ├── src/main/resources/
-│   ├── config/
-│   │   ├── api-gateway.yml          # API Gateway configuration
-│   │   ├── user-service.yml         # User Service configuration
-│   │   ├── menu-service.yml         # Menu Service configuration
-│   │   ├── order-service.yml        # Order Service configuration
-│   │   └── kitchen-service.yml      # Kitchen Service configuration
+│   ├── configurations/              # Git repository structure
+│   │   ├── application.yaml        # Global config
+│   │   ├── platform/
+│   │   │   ├── api-gateway.yaml
+│   │   │   ├── config-server.yaml
+│   │   │   └── service-registry.yaml
+│   │   └── services/
+│   │       ├── user-service.yaml
+│   │       ├── menu-service.yaml
+│   │       ├── order-service.yaml
+│   │       └── kitchen-service.yaml
 │   └── application.yml               # Config Server settings
 └── pom.xml
 ```
@@ -76,7 +81,7 @@ config-server/
 
 - Java 25
 - Maven 3.9+
-- Port 8888 available
+- Port 9000 available
 
 ### Build
 
@@ -101,23 +106,23 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--spring.profiles.active=native
 ### Health Check
 
 ```http
-GET http://localhost:8888/actuator/health
+GET http://localhost:9000/actuator/health
 ```
 
 ### Retrieve Configuration
 
 ```http
-GET http://localhost:8888/{service-name}/{profile}
+GET http://localhost:9000/{service-name}/{profile}
 ```
 
 **Examples:**
 
 ```bash
 # Get user-service configuration (default profile)
-curl http://localhost:8888/user-service/default
+curl http://localhost:9000/user-service/default
 
 # Get menu-service configuration (production profile)
-curl http://localhost:8888/menu-service/production
+curl http://localhost:9000/menu-service/production
 ```
 
 ## 🔗 Service Discovery
@@ -133,7 +138,7 @@ Other services discover the Config Server through Eureka using:
 ```yaml
 spring:
   config:
-    import: optional:configserver:http://localhost:8888
+    import: optional:configserver:http://localhost:9000
 ```
 
 ## 🔑 Key Configuration Properties
@@ -142,7 +147,7 @@ spring:
 
 ```yaml
 server:
-  port: 8888
+  port: 9000
 
 spring:
   application:
@@ -150,10 +155,11 @@ spring:
   cloud:
     config:
       server:
-        native:
-          search-locations: classpath:/config/
-  profiles:
-    active: native
+        git:
+          uri: https://github.com/ChamathDilshanC/Cafeteria-System-Configurations.git
+          clone-on-start: true
+          search-paths: platform,services
+          default-label: main
 
 eureka:
   client:
@@ -172,7 +178,7 @@ mvn spring-boot:build-image
 ### Run with Docker
 
 ```bash
-docker run -p 8888:8888 -e EUREKA_URI=http://service-registry:8761/eureka config-server:latest
+docker run -p 9000:9000 -e EUREKA_URI=http://service-registry:8761/eureka config-server:latest
 ```
 
 ## ☁️ Cloud Deployment (GCP)
@@ -180,7 +186,7 @@ docker run -p 8888:8888 -e EUREKA_URI=http://service-registry:8761/eureka config
 ### Environment Variables
 
 ```bash
-export CONFIG_SERVER_URI=http://config-server:8888
+export CONFIG_SERVER_URI=http://config-server:9000
 export EUREKA_URI=http://service-registry:8761/eureka
 ```
 
@@ -214,10 +220,10 @@ pm2 start ecosystem.config.js --only config-server
 
 ```bash
 # Health check
-curl http://localhost:8888/actuator/health
+curl http://localhost:9000/actuator/health
 
 # Environment properties
-curl http://localhost:8888/actuator/env
+curl http://localhost:9000/actuator/env
 ```
 
 ## 🧪 Testing
@@ -232,7 +238,7 @@ mvn test
 
 ```bash
 # Test if config server is serving configurations
-curl http://localhost:8888/user-service/default | jq .
+curl http://localhost:9000/user-service/default | jq .
 ```
 
 ## 🔄 Configuration Refresh
@@ -269,7 +275,7 @@ curl -X POST http://localhost:8081/actuator/refresh
 ### Service Discovery Flow
 
 ```
-1. Config Server starts on port 8888
+1. Config Server starts on port 9000
 2. Config Server registers with Eureka (8761)
 3. Other services discover Config Server via Eureka
 4. Services fetch their configuration from Config Server
@@ -291,8 +297,8 @@ All microservices
 ### Config Server Not Starting
 
 ```bash
-# Check if port 8888 is in use
-netstat -an | grep 8888
+# Check if port 9000 is in use
+netstat -an | grep 9000
 
 # Check logs
 tail -f logs/config-server.log
@@ -300,14 +306,14 @@ tail -f logs/config-server.log
 
 ### Services Can't Fetch Configuration
 
-1. Verify Config Server is running: `curl http://localhost:8888/actuator/health`
+1. Verify Config Server is running: `curl http://localhost:9000/actuator/health`
 2. Check service configuration has correct URI:
    ```yaml
    spring:
      config:
-       import: optional:configserver:http://localhost:8888
+       import: optional:configserver:http://localhost:9000
    ```
-3. Verify config files exist in `classpath:/config/`
+3. Verify Git repository is accessible and cloned
 
 ### Configuration Not Updating
 
